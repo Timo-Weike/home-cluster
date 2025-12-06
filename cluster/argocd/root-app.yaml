@@ -1,0 +1,22 @@
+# ArgoCD root Application (App of Apps pattern)
+# After bootstrapping ArgoCD, edit repoURL to your repository and apply this manifest.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: home-cluster-root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-user/home-cluster  # <-- REPLACE with your repo URL
+    path: cluster/components
+    targetRevision: main
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

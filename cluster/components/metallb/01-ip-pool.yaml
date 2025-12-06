@@ -1,0 +1,9 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: home-pool
+  namespace: metallb-system
+spec:
+  # Adjust the addresses to your LAN
+  addresses:
+    - 192.168.10.200-192.168.10.250

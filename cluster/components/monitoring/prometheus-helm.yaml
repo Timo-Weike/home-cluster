@@ -1,0 +1,12 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: kube-prometheus-stack
+  namespace: monitoring
+spec:
+  chart: https://prometheus-community.github.io/helm-charts/kube-prometheus-stack-45.6.0.tgz
+  targetNamespace: monitoring
+  valuesContent: |
+    prometheus:
+      prometheusSpec:
+        retention: 7d
