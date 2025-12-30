@@ -31,13 +31,13 @@ MODE=""
 HOSTNAME=""
 MASTER_IP=""
 K3S_TOKEN=""
-METALLB_CIDR="192.168.8.51-192.168.11.254"
+METALLB_CIDR="192.168.8.50-192.168.11.254"
 ARGOCD_IP="192.168.8.50"
 REPO_URL=""
 
 function usage() {
   cat <<EOF
-Usage: sudo $0 --mode master|worker --hostname NAME [--master-ip IP --token TOKEN] [--metallb-cidr CIDR] [--argocd-ip IP] [--repo REPO_URL]
+Usage: sudo $0 --mode master|worker --hostname NAME [--master-ip IP --token TOKEN] [--metallb-cidr CIDR] [--argocd-ip IP]
 Example master:
   sudo $0 --mode master --hostname pi-master --metallb-cidr 192.168.10.200-192.168.10.250 --argocd-ip 192.168.10.220 --repo https://github.com/you/home-cluster.git
 Example worker (after master prints token):
@@ -146,7 +146,7 @@ if [[ "$MODE" == "master" ]]; then
   if [[ -z "$REPO_URL" ]]; then
     echo "Note: No --repo specified. The root app will reference the default placeholder; edit cluster/argocd/root-app.yaml to set your repo URL."
   fi
-  kubectl apply -f /etc/k3s/root-app-placeholder.yaml >/dev/null 2>&1 || true
+  kubectl apply -f ./cluster/argocd/root-app.yaml >/dev/null 2>&1 || true
   echo "Master bootstrap complete. Argo CD installed. Update cluster/argocd/root-app.yaml with your repo URL and apply it via kubectl or import it in Argo CD UI."
 
   echo "Worker join token: $K3S_TOKEN"
