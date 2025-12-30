@@ -28,7 +28,6 @@ ROOT_PART="${NVME_DEVICE}p2"
 LONGHORN_PART="${NVME_DEVICE}p3"
 
 MODE=""
-HOSTNAME=""
 MASTER_IP=""
 K3S_TOKEN=""
 METALLB_CIDR="192.168.8.50-192.168.11.254"
@@ -37,7 +36,7 @@ REPO_URL=""
 
 function usage() {
   cat <<EOF
-Usage: sudo $0 --mode master|worker --hostname NAME [--master-ip IP --token TOKEN] [--metallb-cidr CIDR] [--argocd-ip IP]
+Usage: sudo $0 --mode master|worker [--master-ip IP --token TOKEN] [--metallb-cidr CIDR] [--argocd-ip IP]
 Example master:
   sudo $0 --mode master --hostname pi-master --metallb-cidr 192.168.10.200-192.168.10.250 --argocd-ip 192.168.10.220 --repo https://github.com/you/home-cluster.git
 Example worker (after master prints token):
@@ -49,7 +48,6 @@ EOF
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --mode) MODE="$2"; shift 2;;
-    --hostname) HOSTNAME="$2"; shift 2;;
     --master-ip) MASTER_IP="$2"; shift 2;;
     --token) K3S_TOKEN="$2"; shift 2;;
     --metallb-cidr) METALLB_CIDR="$2"; shift 2;;
@@ -63,11 +61,8 @@ done
 if [[ $(id -u) -ne 0 ]]; then
   echo "Please run as root: sudo $0 ..." >&2; exit 2
 fi
-if [[ -z "$MODE" || -z "$HOSTNAME" ]]; then usage; fi
+if [[ -z "$MODE" ]]; then usage; fi
 if [[ "$MODE" == "worker" ]] && [[ -z "$MASTER_IP" || -z "$K3S_TOKEN" ]]; then echo "Worker requires --master-ip and --token"; exit 3; fi
-
-echo "==> Setting hostname to $HOSTNAME"
-hostnamectl set-hostname "$HOSTNAME"
 
 # Ensure NVMe exists
 if [ ! -b "$NVME_DEVICE" ]; then
