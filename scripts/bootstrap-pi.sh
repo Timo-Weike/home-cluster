@@ -32,7 +32,6 @@ MASTER_IP=""
 K3S_TOKEN=""
 METALLB_CIDR="192.168.8.50-192.168.11.254"
 ARGOCD_IP="192.168.8.50"
-REPO_URL=""
 
 function usage() {
   cat <<EOF
@@ -52,7 +51,6 @@ while [[ $# -gt 0 ]]; do
     --token) K3S_TOKEN="$2"; shift 2;;
     --metallb-cidr) METALLB_CIDR="$2"; shift 2;;
     --argocd-ip) ARGOCD_IP="$2"; shift 2;;
-    --repo) REPO_URL="$2"; shift 2;;
     -h|--help) usage;;
     *) echo "Unknown arg: $1"; usage;;
   esac
@@ -138,14 +136,11 @@ if [[ "$MODE" == "master" ]]; then
   helm upgrade --install argocd argo/argo-cd -n argocd --set server.service.type=LoadBalancer --set server.service.loadBalancerIP=${ARGOCD_IP} || true
 
   # Apply root application pointing to cluster/components
-  if [[ -z "$REPO_URL" ]]; then
-    echo "Note: No --repo specified. The root app will reference the default placeholder; edit cluster/argocd/root-app.yaml to set your repo URL."
-  fi
   kubectl apply -f ./cluster/argocd/root-app.yaml >/dev/null 2>&1 || true
   echo "Master bootstrap complete. Argo CD installed. Update cluster/argocd/root-app.yaml with your repo URL and apply it via kubectl or import it in Argo CD UI."
 
   echo "Worker join token: $K3S_TOKEN"
-  echo "Run workers with: sudo ./bootstrap-pi.sh --mode worker --hostname <name> --master-ip <master-ip> --token $K3S_TOKEN --repo ${REPO_URL}"
+  echo "Run workers with: sudo ./bootstrap-pi.sh --mode worker --hostname <name> --master-ip <master-ip> --token $K3S_TOKEN"
 fi
 
 echo "Bootstrap finished for $HOSTNAME ($MODE). Reboot recommended."
