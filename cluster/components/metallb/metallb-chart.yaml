@@ -1,17 +1,27 @@
 apiVersion: argoproj.io/v1alpha1
-kind: HelmChart
+kind: Application
 metadata:
   name: metallb
   namespace: metallb-system
 spec:
-  chart: metallb
-  repo: https://metallb.github.io/metallb
-  version: 0.14.9        # pin the version!
-  targetNamespace: metallb-system
-  releaseName: metallb
+  project: default
+  source:
+    repoURL: https://metallb.github.io/metallb
+    chart: metallb
+    targetRevision: 0.14.9
+    helm:
+      releaseName: metallb
+      # values: |
+      #   controller:
+      #     tolerations:
+      #       - key: node-role.kubernetes.io/control-plane
+      #         operator: Exists
 
-  # values: |
-  #   controller:
-  #     tolerations:
-  #       - key: node-role.kubernetes.io/control-plane
-  #         operator: Exists
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: metallb-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
