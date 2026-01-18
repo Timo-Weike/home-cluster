@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/mariano-italiano/argocd-apps
+    repoURL: https://github.com/Timo-Weike/home-cluster
     path: cluster/components/monitoring
     targetRevision: main
   destination:
