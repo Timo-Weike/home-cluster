@@ -11,7 +11,7 @@ spec:
     targetRevision: 45.6.0
     helm:
       releaseName: monitoring
-      values: |
+      valuesObject:
         prometheus:
           prometheusSpec:
             retention: 7d
