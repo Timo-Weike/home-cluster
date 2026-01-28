@@ -11,7 +11,7 @@ spec:
     syncOptions:
       - CreateNamespace=true
   project: default
-  sources:
+  source:
     repoURL: https://charts.longhorn.io/
     targetRevision: v1.10.1 # Replace with the Longhorn version you'd like to install or upgrade to
     chart: longhorn
