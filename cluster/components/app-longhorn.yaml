@@ -1,20 +1,20 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: components-longhorn
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/Timo-Weike/home-cluster
-    path: cluster/components/longhorn
-    targetRevision: main
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: longhorn-system
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: components-longhorn
+#   namespace: argocd
+# spec:
+#   project: default
+#   source:
+#     repoURL: https://github.com/Timo-Weike/home-cluster
+#     path: cluster/components/longhorn
+#     targetRevision: main
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: longhorn-system
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
