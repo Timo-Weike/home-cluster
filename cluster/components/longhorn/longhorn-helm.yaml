@@ -5,23 +5,27 @@ metadata:
   namespace: longhorn-system
 spec:
   syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
   project: default
   sources:
-    - chart: longhorn
-      repoURL: https://charts.longhorn.io/
-      targetRevision: v1.10.1 # Replace with the Longhorn version you'd like to install or upgrade to
-      helm:
-        values: |
-          preUpgradeChecker:
-            jobEnabled: false
-          defaultSettings:
-            defaultReplicaCount: 2
-            storageOverProvisioningPercentage: 200
-          persistence:
-            defaultClass: true
-            defaultClassReplicaCount: 2
+    chart: longhorn
+    repoURL: https://charts.longhorn.io/
+    targetRevision: v1.10.1 # Replace with the Longhorn version you'd like to install or upgrade to
+    helm:
+      releaseName: traefik
+      values: |
+        preUpgradeChecker:
+          jobEnabled: false
+        defaultSettings:
+          defaultReplicaCount: 2
+          storageOverProvisioningPercentage: 200
+        persistence:
+          defaultClass: true
+          defaultClassReplicaCount: 2
   destination:
     server: https://kubernetes.default.svc
     namespace: longhorn-system

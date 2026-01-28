@@ -1,17 +1,30 @@
-# This is a simple manifest that uses the Traefik Helm chart via a HelmRelease-like approach.
-# For simplicity, the bootstrap expects ArgoCD to sync a Helm chart or you can use ArgoCD HelmRelease support.
-# Example: Install Traefik with a LoadBalancer IP (adjust IP in values)
-apiVersion: helm.cattle.io/v1
-kind: HelmChart
+apiVersion: argoproj.io/v1alpha1
+kind: Application
 metadata:
   name: traefik
   namespace: traefik
 spec:
-  chart: https://helm.traefik.io/traefik/traefik-10.3.0.tgz
-  targetNamespace: traefik
-  valuesContent: |
-    service:
-      type: LoadBalancer
-      loadBalancerIP: 192.168.10.221
-    additionalArguments:
-      - --providers.kubernetesingress
+  project: default
+  source:
+    repoURL: https://helm.traefik.io/traefik
+    chart: traefik
+    targetRevision: 10.3.0
+    helm:
+      releaseName: traefik
+      values: |
+        service:
+          type: LoadBalancer
+          loadBalancerIP: 192.168.10.221
+        additionalArguments:
+          - --providers.kubernetesingress
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: traefik
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
