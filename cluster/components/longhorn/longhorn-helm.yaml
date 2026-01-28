@@ -17,11 +17,11 @@ spec:
           preUpgradeChecker:
             jobEnabled: false
           defaultSettings:
-            defaultReplicaCount: 3
+            defaultReplicaCount: 2
             storageOverProvisioningPercentage: 200
           persistence:
             defaultClass: true
-            defaultClassReplicaCount: 3
+            defaultClassReplicaCount: 2
   destination:
     server: https://kubernetes.default.svc
     namespace: longhorn-system
