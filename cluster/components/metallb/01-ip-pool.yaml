@@ -6,4 +6,5 @@ metadata:
 spec:
   # Adjust the addresses to your LAN
   addresses:
-    - 192.168.8.16-192.168.8.250
+    # - 192.168.8.16-192.168.8.250
+    - 192.168.1.1-192.168.1.254
