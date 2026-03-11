@@ -30,6 +30,9 @@ spec:
           taintToleration: "node-role.kubernetes.io/master:NoSchedule"
         ingress:
           enabled: false   # Expose via port-forward or a future Ingress resource
+        service:
+          type: NodePort
+          nodePorts: 30777
 
   destination:
     server: https://kubernetes.default.svc
