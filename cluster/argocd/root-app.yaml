@@ -1,22 +1,40 @@
-# ArgoCD root Application (App of Apps pattern)
-# After bootstrapping ArgoCD, edit repoURL to your repository and apply this manifest.
+# cluster/root-app.yaml
+#
+# Argo CD "App of Apps" root application.
+# Argo CD watches this file and creates one child Application per
+# entry in cluster/components/.  Only the three approved components
+# are listed here; MetalLB and Traefik have been removed.
+#
+# Update `repoURL` to point at your own Git remote before bootstrapping.
+
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: home-cluster-root
+  name: root-app
   namespace: argocd
+  # Keep this Application even when all child apps are removed.
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
+
   source:
-    repoURL: https://github.com/Timo-Weike/home-cluster
-    path: cluster/components
+    # ── Change this to your fork / clone URL ──────────────────────────────
+    repoURL: https://github.com/Timo-Weike/home-cluster.git
     targetRevision: main
+    path: cluster/components
+    # Recurse into every sub-directory so each component's Application
+    # manifest is picked up automatically.
+    directory:
+      recurse: true
+
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
+
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
+      prune: true      # Remove resources no longer in Git
+      selfHeal: true   # Re-apply drift detected at runtime
     syncOptions:
       - CreateNamespace=true

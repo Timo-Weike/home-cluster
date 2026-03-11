@@ -1,31 +1,43 @@
+# cluster/components/longhorn/application.yaml
+#
+# Deploys Longhorn distributed block storage via the official Helm chart.
+# Longhorn requires each node to have a dedicated data disk mounted at the
+# path specified in defaultDataPath below (prepared by bootstrap-pi.sh).
+
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: longhorn
   namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
+  project: default
+
+  source:
+    repoURL: https://charts.longhorn.io
+    chart: longhorn
+    targetRevision: "1.6.x"   # Pin to a minor-version range; Renovate will bump this
+    helm:
+      valuesObject:
+        defaultSettings:
+          # Path that bootstrap-pi.sh mounts the NVMe data partition to.
+          defaultDataPath: /var/lib/longhorn
+          # Replica count — set to 2 for a 3-node cluster so one node can be
+          # drained without losing availability.
+          defaultReplicaCount: 1
+          # Allow scheduling on the control-plane node in a single-node setup.
+          taintToleration: "node-role.kubernetes.io/master:NoSchedule"
+        ingress:
+          enabled: false   # Expose via port-forward or a future Ingress resource
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: longhorn-system
+
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-  project: default
-  source:
-    repoURL: https://charts.longhorn.io/
-    targetRevision: v1.10.1 # Replace with the Longhorn version you'd like to install or upgrade to
-    chart: longhorn
-    helm:
-      releaseName: longhorn
-      valuesObject:
-        preUpgradeChecker:
-          jobEnabled: false
-        defaultSettings:
-          defaultReplicaCount: 2
-          storageOverProvisioningPercentage: 200
-        persistence:
-          defaultClass: true
-          defaultClassReplicaCount: 2
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: longhorn-system
