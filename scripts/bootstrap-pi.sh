@@ -134,6 +134,7 @@ if [[ "$MODE" == "master" ]]; then
   helm repo add argo https://argoproj.github.io/argo-helm
   helm repo update
   helm upgrade --install argocd argo/argo-cd -n argocd --set server.service.type=LoadBalancer --set server.service.loadBalancerIP=${ARGOCD_IP} || true
+  helm upgrade --install argocd argo/argo-cd -n argocd --set server.service.type=NodePort
 
   # Apply root application pointing to cluster/components
   kubectl apply -f ./cluster/argocd/root-app.yaml >/dev/null 2>&1 || true

@@ -33,7 +33,7 @@ spec:
         service:
           ui:
             type: NodePort
-            nodePorts: 30777
+            nodePort: 30777
 
   destination:
     server: https://kubernetes.default.svc
