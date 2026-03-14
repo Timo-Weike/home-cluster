@@ -7,13 +7,18 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
-  source:
-    repoURL: https://charts.bitnami.com/bitnami
-    chart: keycloak
-    targetRevision: "22.x.x"
-    helm:
-      valueFiles:
+  sources:
+    - repoURL: https://charts.bitnami.com/bitnami
+      chart: keycloak
+      targetRevision: "22.x.x"
+      helm:
+        valueFiles:
         - values.yaml
+    - repoURL: https://github.com/Timo-Weike/home-cluster.git
+      targetRevision: main
+      path: cluster/components/keycloak/more
+      directory:
+        recurse: true
   destination:
     server: https://kubernetes.default.svc
     namespace: keycloak
