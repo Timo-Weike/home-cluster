@@ -53,6 +53,9 @@ spec:
             enabled: true
             storageClassName: longhorn
             size: 5Gi
+          service:
+            type: NodePort
+            #nodePort: 30080 # default?
           ingress:
             enabled: false   # Enable once an ingress controller is present
 
