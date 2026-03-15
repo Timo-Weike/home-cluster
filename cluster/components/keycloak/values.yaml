@@ -28,6 +28,8 @@ extraEnvVars:
 # Bundled PostgreSQL (sub-chart)
 postgresql:
   enabled: true
+  image:
+    tag: latest
   auth:
     username: keycloak
     database: keycloak
