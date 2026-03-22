@@ -80,6 +80,7 @@ spec:
     namespace: wikijs
   syncPolicy:
     automated:
+      enabled: false
       prune: true
       selfHeal: false
     syncOptions:
