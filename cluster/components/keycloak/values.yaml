@@ -29,6 +29,8 @@ extraEnvVars:
 postgresql:
   enabled: true
   image:
+    registry: docker.io
+    repository: bitnami/postgresql
     tag: latest
   auth:
     username: keycloak
