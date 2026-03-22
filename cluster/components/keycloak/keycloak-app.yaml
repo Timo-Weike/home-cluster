@@ -48,8 +48,8 @@ spec:
           postgresql:
             enabled: true
             image:
-              registry: docker.iot
-              repository: bitnami/postgresqlt
+              registry: docker.io
+              repository: bitnami/postgresql
               tag: latest
             auth:
               username: keycloak
