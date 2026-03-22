@@ -20,7 +20,8 @@ spec:
             existingSecretPasswordKey: admin-password
 
           image:
-            tag: latest
+            repository: bitnamilegacy/keycloak
+            tag: 26.3.3-debian-12-r0
 
           # Expose via NodePort at app.home:30781
           service:
@@ -49,7 +50,7 @@ spec:
             image:
               registry: docker.iot
               repository: bitnami/postgresqlt
-              tag: latestt
+              tag: latest
             auth:
               username: keycloak
               database: keycloak
