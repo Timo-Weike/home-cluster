@@ -12,8 +12,73 @@ spec:
       chart: keycloak
       targetRevision: "22.x.x"
       helm:
-        valueFiles:
-        - values.yaml
+        valuesObject:
+          auth:
+            adminUser: admin
+            # adminPassword is sourced from the keycloak-admin-secret SealedSecret
+            existingSecret: keycloak-admin-secret
+            existingSecretPasswordKey: admin-password
+
+          image:
+            tag: latest
+
+          # Expose via NodePort at app.home:30781
+          service:
+            type: NodePort
+            nodePorts:
+              http: "30781"
+
+          # Production-grade settings
+          production: false   # set true once TLS is configured
+          proxy: edge
+
+          # Hostname for OIDC issuer URL — Wiki.js and other clients use this
+          extraEnvVars:
+            - name: KC_HOSTNAME
+              value: "app.home:30781"
+            - name: KC_HOSTNAME_STRICT
+              value: "false"
+            - name: KC_HOSTNAME_STRICT_HTTPS
+              value: "false"
+            - name: KC_HTTP_ENABLED
+              value: "true"
+
+          # Bundled PostgreSQL (sub-chart)
+          postgresql:
+            enabled: true
+            image:
+              registry: docker.iot
+              repository: bitnami/postgresqlt
+              tag: latestt
+            auth:
+              username: keycloak
+              database: keycloak
+              existingSecret: keycloak-db-secret
+              secretKeys:
+                userPasswordKey: db-password
+                adminPasswordKey: db-admin-password
+            primary:
+              persistence:
+                enabled: true
+                storageClass: longhorn
+                size: 2Gi
+
+          # Keycloak persistence (for themes / providers if needed)
+          persistence:
+            enabled: false   # stateless; all state is in PostgreSQL
+
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+
+          replicaCount: 1
+
+
+      
     - repoURL: https://github.com/Timo-Weike/home-cluster.git
       targetRevision: main
       path: cluster/components/keycloak/more
