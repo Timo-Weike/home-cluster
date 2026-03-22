@@ -12,6 +12,8 @@ service:
 # PostgreSQL connection — credentials come from wikijs-db-secret SealedSecret
 postgresql:
   enabled: true
+  image:
+    tag: latest
   auth:
     username: wikijs
     database: wikijs
