@@ -4,6 +4,9 @@ auth:
   existingSecret: keycloak-admin-secret
   existingSecretPasswordKey: admin-password
 
+image:
+  tag: latest
+
 # Expose via NodePort at app.home:30781
 service:
   type: NodePort
