@@ -12,7 +12,7 @@ spec:
     chart: wiki
     targetRevision: "2.x.x"
     helm:
-      valueObject:
+      valuesObject:
         image:
           repository: ghcr.io/requarks/wiki
           tag: "2"
