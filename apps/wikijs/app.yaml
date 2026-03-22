@@ -27,22 +27,19 @@ spec:
         # PostgreSQL connection — credentials come from wikijs-db-secret SealedSecret
         postgresql:
           enabled: true
+          postgresqlUser: wikijs
+          existingSecret: wikijs-db-secret
+          secretKeys:
+            userPasswordKey: db-password
+            adminPasswordKey: db-admin-password
           image:
             registry: docker.io
             repository: bitnami/postgresql
             tag: latest
-          auth:
-            username: wikijs
-            database: wikijs
-            existingSecret: wikijs-db-secret
-            secretKeys:
-              userPasswordKey: db-password
-              adminPasswordKey: db-admin-password
-          primary:
-            persistence:
-              enabled: true
-              storageClass: longhorn
-              size: 5Gi
+          persistence:
+            enabled: true
+            storageClass: longhorn
+            size: 5Gi
 
         # Wiki.js app config
         config:
