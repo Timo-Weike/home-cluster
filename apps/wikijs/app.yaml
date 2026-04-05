@@ -30,9 +30,9 @@ spec:
         # PostgreSQL connection — credentials come from wikijs-db-secret SealedSecret
         postgresql:
           enabled: true
-          postgresqlUser: postgres # default
-          existingSecret: wikijs-db-secret
-          existingSecretKey: db-password
+          # postgresqlUser: postgres # default
+          # existingSecret: wikijs-db-secret
+          # existingSecretKey: db-password
           image:
             registry: docker.io
             repository: bitnami/postgresql
