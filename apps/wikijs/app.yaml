@@ -29,9 +29,7 @@ spec:
           enabled: true
           postgresqlUser: wikijs
           existingSecret: wikijs-db-secret
-          secretKeys:
-            userPasswordKey: db-password
-            adminPasswordKey: db-admin-password
+          existingSecretKey: db-password
           image:
             registry: docker.io
             repository: bitnami/postgresql
@@ -40,22 +38,6 @@ spec:
             enabled: true
             storageClass: longhorn
             size: 5Gi
-
-        # Wiki.js app config
-        config:
-          host: "http://app.home:30782"
-          port: 3000
-          db:
-            type: postgres
-            host: "wikijs-postgresql"
-            port: 5432
-            user: wikijs
-            db: wikijs
-            # password injected via DB_PASS env var from wikijs-db-secret
-            ssl: false
-
-        # Inject DB password and OIDC secret from SealedSecrets
-        extraEnvVarsSecret: wikijs-db-secret
 
         persistence:
           enabled: true
