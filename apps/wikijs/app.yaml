@@ -30,7 +30,7 @@ spec:
         # PostgreSQL connection — credentials come from wikijs-db-secret SealedSecret
         postgresql:
           enabled: true
-          postgresqlUser: wikijs
+          postgresqlUser: postgres # default
           existingSecret: wikijs-db-secret
           existingSecretKey: db-password
           image:
