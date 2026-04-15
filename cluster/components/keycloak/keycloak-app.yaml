@@ -15,6 +15,7 @@ spec:
         valuesObject:
           auth:
             adminUser: admin
+            adminPassword: "changeme"   # Replace with a SealedSecret in production
             # adminPassword is sourced from the keycloak-admin-secret SealedSecret
             existingSecret: keycloak-admin-secret
             passwordSecretKey: admin-password
@@ -90,7 +91,8 @@ spec:
     namespace: keycloak
   syncPolicy:
     automated:
+      enable: false
       prune: true
-      selfHeal: true
+      selfHeal: false
     syncOptions:
       - CreateNamespace=true
