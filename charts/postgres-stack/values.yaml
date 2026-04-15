@@ -33,7 +33,7 @@ postgresql:
   primary:
     persistence:
       enabled: true
-      storageClass: ""   # leave empty for the cluster default; set e.g. "longhorn"
+      storageClass: "longhorn"
       size: 10Gi
 
     resources:
