@@ -62,7 +62,7 @@ pgadmin:
   replicaCount: 1
 
   auth:
-    email: admin
+    email: timo_weike@gmx.de
     # Option A — inline password
     # password: "changeme"
     # Option B — pre-existing Secret with key "pgadmin-password"
