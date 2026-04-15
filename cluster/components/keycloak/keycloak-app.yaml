@@ -17,7 +17,7 @@ spec:
             adminUser: admin
             # adminPassword is sourced from the keycloak-admin-secret SealedSecret
             existingSecret: keycloak-admin-secret
-            existingSecretPasswordKey: admin-password
+            passwordSecretKey: admin-password
 
           image:
             repository: bitnamilegacy/keycloak
