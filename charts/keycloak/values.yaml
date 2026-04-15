@@ -1,0 +1,163 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# keycloak/values.yaml
+#
+# Adjust the blocks below; everything else is delegated to the upstream charts.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ---------------------------------------------------------------------------
+# PostgreSQL (Bitnami sub-chart)
+# Credentials come exclusively from the keycloak-db-secret SealedSecret;
+# no plaintext passwords are stored here.
+# ---------------------------------------------------------------------------
+postgresql:
+  enabled: true
+
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: "latest"          # pin to a major; avoid `latest` in GitOps
+
+  auth:
+    username: keycloak
+    database: keycloak
+    # Pull both the user password and the postgres superuser password from
+    # the SealedSecret that is deployed alongside this chart.
+    existingSecret: keycloak-db-secret
+    secretKeys:
+      userPasswordKey: db-password
+      adminPasswordKey: db-admin-password
+
+  primary:
+    persistence:
+      enabled: true
+      storageClass: longhorn
+      size: 2Gi
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# ---------------------------------------------------------------------------
+# Keycloak (codecentric/keycloakx sub-chart)
+# ---------------------------------------------------------------------------
+keycloakx:
+  # ── Image ────────────────────────────────────────────────────────────────
+  image:
+    repository: quay.io/keycloak/keycloak
+    tag: "26.0"          # keep in sync with appVersion above
+    pullPolicy: IfNotPresent
+
+  # ── Replica count ────────────────────────────────────────────────────────
+  replicas: 1
+
+  # ── Keycloak startup command ─────────────────────────────────────────────
+  # `start` with --optimised is recommended for production builds; use
+  # `start-dev` only for local/dev clusters where build time matters.
+  command:
+    - "/opt/keycloak/bin/kc.sh"
+    - "start"
+    - "--http-port=8080"
+    - "--hostname-strict=false"
+    - "--proxy=edge"
+    - "--db=postgres"
+
+  database:
+    host: keycloak-postgresql
+    port: 5432
+    name: keycloak
+    user: keycloak
+    password:
+      existingSecret: keycloak-db-secret
+      secretKey: db-password
+
+  # ── Admin credentials ────────────────────────────────────────────────────
+  # Sourced from keycloak-admin-secret SealedSecret (key: admin-password).
+  extraEnv: |
+    - name: KEYCLOAK_ADMIN
+      value: admin
+    - name: KEYCLOAK_ADMIN_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: keycloak-admin-secret
+          key: admin-password
+    - name: KC_HOSTNAME
+      value: "app.home:30781"
+    - name: KC_HOSTNAME_STRICT
+      value: "false"
+    - name: KC_HOSTNAME_STRICT_HTTPS
+      value: "false"
+    - name: KC_HTTP_ENABLED
+      value: "true"
+    - name: JAVA_OPTS_APPEND
+      value: >-
+        -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
+
+  # ── Service ──────────────────────────────────────────────────────────────
+  service:
+    type: NodePort
+    httpPort: 80
+    httpNodePort: 30781
+
+  # ── Ingress ──────────────────────────────────────────────────────────────
+  ingress:
+    enabled: false    # enable once a proper ingress controller is in place
+
+  # ── Persistence ──────────────────────────────────────────────────────────
+  # Keycloak itself is stateless (all state in PostgreSQL); no PVC needed.
+
+  # ── Resources ────────────────────────────────────────────────────────────
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+  # ── pgchecker init-container ─────────────────────────────────────────────
+  # Waits for PostgreSQL to be ready before Keycloak starts.
+  pgchecker:
+    enabled: true
+    image:
+      repository: docker.io/busybox
+      tag: "1.36"
+      pullPolicy: IfNotPresent
+    securityContext:
+      allowPrivilegeEscalation: false
+      runAsUser: 1000
+      runAsGroup: 1000
+      runAsNonRoot: true
+    resources:
+      requests:
+        cpu: 20m
+        memory: 32Mi
+      limits:
+        cpu: 20m
+        memory: 32Mi
+
+  # ── Liveness / Readiness ─────────────────────────────────────────────────
+  livenessProbe: |
+    httpGet:
+      path: /health/live
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    failureThreshold: 5
+  readinessProbe: |
+    httpGet:
+      path: /health/ready
+      port: 8080
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 3
+  startupProbe: |
+    httpGet:
+      path: /health
+      port: 8080
+    initialDelaySeconds: 15
+    periodSeconds: 5
+    failureThreshold: 30
