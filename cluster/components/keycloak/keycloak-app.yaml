@@ -17,8 +17,8 @@ spec:
             adminUser: admin
             adminPassword: "changeme"   # Replace with a SealedSecret in production
             # adminPassword is sourced from the keycloak-admin-secret SealedSecret
-            existingSecret: keycloak-admin-secret
-            passwordSecretKey: admin-password
+            # existingSecret: keycloak-admin-secret
+            # passwordSecretKey: admin-password
 
           image:
             repository: bitnamilegacy/keycloak
@@ -91,7 +91,6 @@ spec:
     namespace: keycloak
   syncPolicy:
     automated:
-      enable: false
       prune: true
       selfHeal: false
     syncOptions:

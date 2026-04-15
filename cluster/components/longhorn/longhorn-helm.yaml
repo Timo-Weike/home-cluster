@@ -41,7 +41,6 @@ spec:
 
   syncPolicy:
     automated:
-      enable: false
       prune: true
       selfHeal: false
     syncOptions:
