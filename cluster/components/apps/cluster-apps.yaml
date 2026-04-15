@@ -34,7 +34,8 @@ spec:
 
   syncPolicy:
     automated:
-      prune: true      # Remove resources no longer in Git
-      selfHeal: true   # Re-apply drift detected at runtime
+      enable: false
+      prune: true
+      selfHeal: false
     syncOptions:
       - CreateNamespace=true

@@ -77,8 +77,9 @@ spec:
 
   syncPolicy:
     automated:
+      enable: false
       prune: true
-      selfHeal: true
+      selfHeal: false
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true   # Required for large CRD sets shipped by this chart
