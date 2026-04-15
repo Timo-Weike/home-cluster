@@ -1,0 +1,27 @@
+{{- if .Values.pgadmin.serverDefinition.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "postgres-stack.fullname" . }}-pgadmin-servers
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/component: pgadmin
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+data:
+  servers.json: |
+    {
+      "Servers": {
+        "1": {
+          "Name": {{ .Values.pgadmin.serverDefinition.serverName | quote }},
+          "Group": "Servers",
+          "Host": {{ include "postgres-stack.postgres.host" . | quote }},
+          "Port": {{ include "postgres-stack.postgres.port" . }},
+          "MaintenanceDB": {{ .Values.postgresql.auth.database | quote }},
+          "Username": {{ .Values.postgresql.auth.username | quote }},
+          "SSLMode": "prefer",
+          "PassFile": "/pgpass"
+        }
+      }
+    }
+{{- end }}

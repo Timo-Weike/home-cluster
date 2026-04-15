@@ -1,0 +1,26 @@
+PostgreSQL (Bitnami sub-chart)
+──────────────────────────────
+Host:  {{ include "postgres-stack.postgres.host" . }}
+Port:  {{ include "postgres-stack.postgres.port" . }}
+User:  {{ .Values.postgresql.auth.username }}
+DB:    {{ .Values.postgresql.auth.database }}
+
+Retrieve the password:
+  kubectl get secret {{ include "postgres-stack.postgres.secretName" . }} \
+    -n {{ .Release.Namespace }} \
+    -o jsonpath="{.data.postgres-password}" | base64 -d
+
+pgAdmin 4
+─────────
+{{- if .Values.pgadmin.ingress.enabled }}
+URL: http{{ if .Values.pgadmin.ingress.tls }}s{{ end }}://{{ .Values.pgadmin.ingress.host }}
+{{- else }}
+Port-forward:
+  kubectl port-forward -n {{ .Release.Namespace }} \
+    svc/{{ include "postgres-stack.fullname" . }}-pgadmin 8080:{{ .Values.pgadmin.service.port }}
+  → http://localhost:8080
+{{- end }}
+Login: {{ .Values.pgadmin.auth.email }}
+{{- if .Values.pgadmin.serverDefinition.enabled }}
+The PostgreSQL server is pre-seeded as "{{ .Values.pgadmin.serverDefinition.serverName }}".
+{{- end }}

@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgres-stack
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/Timo-Weike/home-cluster.git
+    targetRevision: main
+    path: charts/postgres-stack   # where you place this chart in your repo
+
+    helm:
+      releaseName: postgres-stack
+      # Argo CD must run "helm dependency update" before rendering.
+      # This is handled automatically when the chart has a Chart.lock file
+      # committed alongside Chart.yaml (run "helm dependency update" locally
+      # and commit the resulting Chart.lock and charts/ tarball).
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: postgresql-stack
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

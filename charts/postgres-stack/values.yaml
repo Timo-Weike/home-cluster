@@ -1,0 +1,113 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# postgres-stack values
+#
+# The "postgresql" block is passed directly to the Bitnami PostgreSQL sub-chart.
+# See full reference:
+#   https://github.com/bitnami/charts/tree/main/bitnami/postgresql#parameters
+# ──────────────────────────────────────────────────────────────────────────────
+
+# ------------------------------------------------------------------------------
+# Bitnami PostgreSQL sub-chart
+# ------------------------------------------------------------------------------
+postgresql:
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: latest
+  auth:
+    # Name of the default database created on first boot
+    database: appdb
+    # Superuser name (default "postgres" is fine for a home cluster)
+    # username: admin
+
+    # Option A — inline password (replace with a SealedSecret reference in prod)
+    # password: "changeme"
+    # postgresPassword: "changeme"
+
+    #Option B — point at a pre-existing Secret (comment out the passwords above)
+    existingSecret: postgres-credentials
+    secretKeys:
+      adminPasswordKey: postgres-password
+      userPasswordKey:  postgres-password
+
+  primary:
+    persistence:
+      enabled: true
+      storageClass: ""   # leave empty for the cluster default; set e.g. "longhorn"
+      size: 10Gi
+
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+
+  # Expose only inside the cluster (pgAdmin reaches it via its ClusterIP service)
+  service:
+    type: ClusterIP
+    ports:
+      postgresql: 5432
+
+# ------------------------------------------------------------------------------
+# pgAdmin 4
+# ------------------------------------------------------------------------------
+pgadmin:
+  image:
+    repository: dpage/pgadmin4
+    tag: "8.7"
+    pullPolicy: IfNotPresent
+
+  replicaCount: 1
+
+  auth:
+    email: admin
+    # Option A — inline password
+    # password: "changeme"
+    # Option B — pre-existing Secret with key "pgadmin-password"
+    existingSecret: "pgadmin-secret"
+    secretKey: pgadmin-password
+
+  # Pre-seed the bundled PostgreSQL server so it appears in pgAdmin immediately
+  serverDefinition:
+    enabled: true
+    serverName: "postgres-stack"
+
+  service:
+    type: NodePort
+    port: 30800
+
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    host: pgadmin.example.com
+    tls: []
+
+  persistence:
+    enabled: true
+    storageClass: ""
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    existingClaim: ""
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  podSecurityContext:
+    fsGroup: 5050
+
+  securityContext:
+    runAsUser: 5050
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}

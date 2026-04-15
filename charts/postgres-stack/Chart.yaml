@@ -1,0 +1,15 @@
+apiVersion: v2
+name: postgres-stack
+description: |
+  Bundles the Bitnami PostgreSQL chart with a pgAdmin 4 deployment.
+  PostgreSQL is fully managed by the Bitnami sub-chart; this chart only
+  adds the pgAdmin UI on top.
+type: application
+version: 1.0.0
+appVersion: "16"
+
+dependencies:
+  - name: postgresql
+    version: "16.x.x"
+    repository: https://charts.bitnami.com/bitnami
+    alias: postgresql   # values are nested under the "postgresql:" key
