@@ -1,47 +1,47 @@
-# cluster/components/longhorn/application.yaml
-#
-# Deploys Longhorn distributed block storage via the official Helm chart.
-# Longhorn requires each node to have a dedicated data disk mounted at the
-# path specified in defaultDataPath below (prepared by bootstrap-pi.sh).
+# # cluster/components/longhorn/application.yaml
+# #
+# # Deploys Longhorn distributed block storage via the official Helm chart.
+# # Longhorn requires each node to have a dedicated data disk mounted at the
+# # path specified in defaultDataPath below (prepared by bootstrap-pi.sh).
 
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: longhorn
-  namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
-spec:
-  project: default
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: longhorn
+#   namespace: argocd
+#   finalizers:
+#     - resources-finalizer.argocd.argoproj.io
+# spec:
+#   project: default
 
-  source:
-    repoURL: https://charts.longhorn.io
-    chart: longhorn
-    targetRevision: "1.6.x"   # Pin to a minor-version range; Renovate will bump this
-    helm:
-      valuesObject:
-        defaultSettings:
-          # Path that bootstrap-pi.sh mounts the NVMe data partition to.
-          defaultDataPath: /var/lib/longhorn
-          # Replica count — set to 2 for a 3-node cluster so one node can be
-          # drained without losing availability.
-          defaultReplicaCount: 1
-          # Allow scheduling on the control-plane node in a single-node setup.
-          taintToleration: "node-role.kubernetes.io/master:NoSchedule"
-        ingress:
-          enabled: false   # Expose via port-forward or a future Ingress resource
-        service:
-          ui:
-            type: NodePort
-            nodePort: 30777
+#   source:
+#     repoURL: https://charts.longhorn.io
+#     chart: longhorn
+#     targetRevision: "1.6.x"   # Pin to a minor-version range; Renovate will bump this
+#     helm:
+#       valuesObject:
+#         defaultSettings:
+#           # Path that bootstrap-pi.sh mounts the NVMe data partition to.
+#           defaultDataPath: /var/lib/longhorn
+#           # Replica count — set to 2 for a 3-node cluster so one node can be
+#           # drained without losing availability.
+#           defaultReplicaCount: 1
+#           # Allow scheduling on the control-plane node in a single-node setup.
+#           taintToleration: "node-role.kubernetes.io/master:NoSchedule"
+#         ingress:
+#           enabled: false   # Expose via port-forward or a future Ingress resource
+#         service:
+#           ui:
+#             type: NodePort
+#             nodePort: 30777
 
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: longhorn-system
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: longhorn-system
 
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: false
-    syncOptions:
-      - CreateNamespace=true
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: false
+#     syncOptions:
+#       - CreateNamespace=true

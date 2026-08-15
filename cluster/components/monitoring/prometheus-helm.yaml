@@ -1,84 +1,84 @@
-# cluster/components/monitoring/application.yaml
-#
-# Deploys the kube-prometheus-stack Helm chart, which bundles:
-#   • Prometheus   – metrics collection & alerting
-#   • Alertmanager – alert routing
-#   • Grafana      – dashboards
-#   • Node Exporter & kube-state-metrics – cluster-level metrics
-#
-# Persistent storage uses Longhorn, so this Application implicitly
-# depends on the longhorn Application being healthy first.
-# Argo CD does not enforce ordering automatically; use syncWaves or
-# manual sync order if needed.
+# # cluster/components/monitoring/application.yaml
+# #
+# # Deploys the kube-prometheus-stack Helm chart, which bundles:
+# #   • Prometheus   – metrics collection & alerting
+# #   • Alertmanager – alert routing
+# #   • Grafana      – dashboards
+# #   • Node Exporter & kube-state-metrics – cluster-level metrics
+# #
+# # Persistent storage uses Longhorn, so this Application implicitly
+# # depends on the longhorn Application being healthy first.
+# # Argo CD does not enforce ordering automatically; use syncWaves or
+# # manual sync order if needed.
 
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: monitoring
-  namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
-  annotations:
-    # Sync wave 1 — deploy after sealed-secrets (wave 0) and longhorn (wave 0).
-    argocd.argoproj.io/sync-wave: "1"
-spec:
-  project: default
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: monitoring
+#   namespace: argocd
+#   finalizers:
+#     - resources-finalizer.argocd.argoproj.io
+#   annotations:
+#     # Sync wave 1 — deploy after sealed-secrets (wave 0) and longhorn (wave 0).
+#     argocd.argoproj.io/sync-wave: "1"
+# spec:
+#   project: default
 
-  source:
-    repoURL: https://prometheus-community.github.io/helm-charts
-    chart: kube-prometheus-stack
-    targetRevision: "58.x"   # Renovate will keep this current
-    helm:
-      valuesObject:
-        # ── Prometheus ────────────────────────────────────────────────────
-        prometheus:
-          prometheusSpec:
-            retention: 15d
-            storageSpec:
-              volumeClaimTemplate:
-                spec:
-                  storageClassName: longhorn
-                  accessModes: ["ReadWriteOnce"]
-                  resources:
-                    requests:
-                      storage: 20Gi
-          service:
-            type: NodePort
-            #nodePort: 30090 # default
+#   source:
+#     repoURL: https://prometheus-community.github.io/helm-charts
+#     chart: kube-prometheus-stack
+#     targetRevision: "58.x"   # Renovate will keep this current
+#     helm:
+#       valuesObject:
+#         # ── Prometheus ────────────────────────────────────────────────────
+#         prometheus:
+#           prometheusSpec:
+#             retention: 15d
+#             storageSpec:
+#               volumeClaimTemplate:
+#                 spec:
+#                   storageClassName: longhorn
+#                   accessModes: ["ReadWriteOnce"]
+#                   resources:
+#                     requests:
+#                       storage: 20Gi
+#           service:
+#             type: NodePort
+#             #nodePort: 30090 # default
 
-        # ── Grafana ───────────────────────────────────────────────────────
-        grafana:
-          adminPassword: "changeme"   # Replace with a SealedSecret in production
-          persistence:
-            enabled: true
-            storageClassName: longhorn
-            size: 5Gi
-          service:
-            type: NodePort
-            #nodePort: 30080 # default?
-          ingress:
-            enabled: false   # Enable once an ingress controller is present
+#         # ── Grafana ───────────────────────────────────────────────────────
+#         grafana:
+#           adminPassword: "changeme"   # Replace with a SealedSecret in production
+#           persistence:
+#             enabled: true
+#             storageClassName: longhorn
+#             size: 5Gi
+#           service:
+#             type: NodePort
+#             #nodePort: 30080 # default?
+#           ingress:
+#             enabled: false   # Enable once an ingress controller is present
 
-        # ── Alertmanager ──────────────────────────────────────────────────
-        alertmanager:
-          alertmanagerSpec:
-            storage:
-              volumeClaimTemplate:
-                spec:
-                  storageClassName: longhorn
-                  accessModes: ["ReadWriteOnce"]
-                  resources:
-                    requests:
-                      storage: 2Gi
+#         # ── Alertmanager ──────────────────────────────────────────────────
+#         alertmanager:
+#           alertmanagerSpec:
+#             storage:
+#               volumeClaimTemplate:
+#                 spec:
+#                   storageClassName: longhorn
+#                   accessModes: ["ReadWriteOnce"]
+#                   resources:
+#                     requests:
+#                       storage: 2Gi
 
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: monitoring
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: monitoring
 
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: false
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true   # Required for large CRD sets shipped by this chart
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: false
+#     syncOptions:
+#       - CreateNamespace=true
+#       - ServerSideApply=true   # Required for large CRD sets shipped by this chart

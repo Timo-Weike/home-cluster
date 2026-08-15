@@ -21,7 +21,7 @@ spec:
   source:
     # ── Change this to your fork / clone URL ──────────────────────────────
     repoURL: https://github.com/Timo-Weike/home-cluster.git
-    targetRevision: main
+    targetRevision: new-cluster
     path: apps
     # Recurse into every sub-directory so each component's Application
     # manifest is picked up automatically.

@@ -10,7 +10,7 @@ spec:
 
   sources:
     - repoURL: https://github.com/Timo-Weike/home-cluster.git
-      targetRevision: main
+      targetRevision: new-cluster
       path: charts/keycloak
       helm:
         releaseName: keycloak

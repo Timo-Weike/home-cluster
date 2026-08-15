@@ -1,69 +1,69 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: wikijs
-  namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
-spec:
-  project: default
-  source:
-    repoURL: https://charts.js.wiki
-    chart: wiki
-    targetRevision: "2.x.x"
-    helm:
-      valuesObject:
-        image:
-          repository: ghcr.io/requarks/wiki
-          tag: "2"
-          pullPolicy: IfNotPresent
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: wikijs
+#   namespace: argocd
+#   finalizers:
+#     - resources-finalizer.argocd.argoproj.io
+# spec:
+#   project: default
+#   source:
+#     repoURL: https://charts.js.wiki
+#     chart: wiki
+#     targetRevision: "2.x.x"
+#     helm:
+#       valuesObject:
+#         image:
+#           repository: ghcr.io/requarks/wiki
+#           tag: "2"
+#           pullPolicy: IfNotPresent
 
-        # Expose via NodePort at app.home:30782
-        service:
-          type: NodePort
-          port: 3000
-          nodePort: 30782
+#         # Expose via NodePort at app.home:30782
+#         service:
+#           type: NodePort
+#           port: 3000
+#           nodePort: 30782
         
-        ingress:
-          enabled: false
+#         ingress:
+#           enabled: false
 
-        # PostgreSQL connection — credentials come from wikijs-db-secret SealedSecret
-        postgresql:
-          enabled: true
-          # postgresqlUser: postgres # default
-          # existingSecret: wikijs-db-secret
-          # existingSecretKey: db-password
-          image:
-            registry: docker.io
-            repository: bitnami/postgresql
-            tag: latest
-          persistence:
-            enabled: true
-            storageClass: longhorn
-            size: 5Gi
+#         # PostgreSQL connection — credentials come from wikijs-db-secret SealedSecret
+#         postgresql:
+#           enabled: true
+#           # postgresqlUser: postgres # default
+#           # existingSecret: wikijs-db-secret
+#           # existingSecretKey: db-password
+#           image:
+#             registry: docker.io
+#             repository: bitnami/postgresql
+#             tag: latest
+#           persistence:
+#             enabled: true
+#             storageClass: longhorn
+#             size: 5Gi
 
-        persistence:
-          enabled: true
-          storageClass: longhorn
-          size: 5Gi
+#         persistence:
+#           enabled: true
+#           storageClass: longhorn
+#           size: 5Gi
 
-        resources:
-          requests:
-            cpu: 100m
-            memory: 256Mi
-          limits:
-            cpu: 500m
-            memory: 512Mi
+#         resources:
+#           requests:
+#             cpu: 100m
+#             memory: 256Mi
+#           limits:
+#             cpu: 500m
+#             memory: 512Mi
 
-        replicaCount: 1
+#         replicaCount: 1
 
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: wikijs
-  syncPolicy:
-    automated:
-      enabled: false
-      prune: true
-      selfHeal: false
-    syncOptions:
-      - CreateNamespace=true
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: wikijs
+#   syncPolicy:
+#     automated:
+#       enabled: false
+#       prune: true
+#       selfHeal: false
+#     syncOptions:
+#       - CreateNamespace=true
